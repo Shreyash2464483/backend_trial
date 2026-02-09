@@ -4,19 +4,20 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace backend_trial.Repositories
+namespace backend_trial.Services
 {
-    public class TokenRepository : ITokenRepository
+    public class TokenService : ITokenService
     {
-        private readonly IConfiguration _configuration;
+        private readonly IConfiguration configuration;
 
-        public TokenRepository(IConfiguration configuration)
+        public TokenService(IConfiguration configuration)
         {
-            _configuration = configuration;
+            this.configuration = configuration;
         }
+
         public string CreateJwtToken(User user)
         {
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             var claims = new[]
@@ -30,8 +31,8 @@ namespace backend_trial.Repositories
             };
 
             var token = new JwtSecurityToken(
-                issuer: _configuration["Jwt:Issuer"],
-                audience: _configuration["Jwt:Audience"],
+                issuer: configuration["Jwt:Issuer"],
+                audience: configuration["Jwt:Audience"],
                 claims: claims,
                 expires: DateTime.Now.AddHours(1),
                 signingCredentials: credentials

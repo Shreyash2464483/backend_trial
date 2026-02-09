@@ -1,7 +1,7 @@
 ﻿using backend_trial.Data;
 using backend_trial.Models.Domain;
 using backend_trial.Models.DTO;
-using backend_trial.Repositories;
+using backend_trial.Services;
 using BCrypt.Net;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,15 +12,13 @@ namespace backend_trial.Controllers
     [ApiController]
     public class AuthController : Controller
     {
-        private readonly IdeaBoardDbContext _context;
-        private readonly IConfiguration _configuration;
-        private readonly ITokenRepository tokenRepository;
+        private readonly IdeaBoardDbContext context;
+        private readonly ITokenService tokenService;
 
-        public AuthController(IdeaBoardDbContext context , IConfiguration configuration , ITokenRepository tokenRepository)
+        public AuthController(IdeaBoardDbContext context , ITokenService tokenService)
         {
-            _context = context;
-            _configuration = configuration;
-            this.tokenRepository = tokenRepository;
+            this.context = context;
+            this.tokenService = tokenService;
         }
 
         [HttpPost]
@@ -28,7 +26,7 @@ namespace backend_trial.Controllers
         public async Task<ActionResult<AuthResponseDto>> Register([FromBody] RegisterRequestDto request)
         {
             // Check if user with the same email already exists
-            if (await _context.Users.AnyAsync(u => u.Email == request.Email))
+            if (await context.Users.AnyAsync(u => u.Email == request.Email))
             {
                 return BadRequest("User with this email already exists.");
             }
@@ -53,8 +51,8 @@ namespace backend_trial.Controllers
             };
 
             // Store user in DataBase
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            context.Users.Add(user);
+            await context.SaveChangesAsync();
 
            
             return Ok("Registration successful. Please login to continue.");
@@ -65,7 +63,7 @@ namespace backend_trial.Controllers
         public async Task<ActionResult<AuthResponseDto>> Login([FromBody] LoginRequestDto request)
         {
             // Find user by email
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+            var user = await context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
 
             if (user == null)
             {
@@ -85,7 +83,7 @@ namespace backend_trial.Controllers
             }
 
             // Generate Jwt token
-            var token = tokenRepository.CreateJwtToken(user);
+            var token = tokenService.CreateJwtToken(user);
 
             var response = new AuthResponseDto
             {
