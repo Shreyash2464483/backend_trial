@@ -1,7 +1,6 @@
 ﻿using backend_trial.Data;
 using backend_trial.Models.Domain;
 using backend_trial.Models.DTO;
-using backend_trial.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,13 +10,11 @@ namespace backend_trial.Controllers
     [ApiController]
     public class CategorieController : ControllerBase
     {
-        private readonly ICategorieRepository categorieRepository;
-        private readonly IdeaBoardDbContext dbContext;
+        private readonly IdeaBoardDbContext _dbContext;
 
-        public CategorieController(ICategorieRepository categorieRepository, IdeaBoardDbContext dbContext)
+        public CategorieController(IdeaBoardDbContext dbContext)
         {
-            this.categorieRepository = categorieRepository;
-            this.dbContext = dbContext;
+            _dbContext = dbContext;
         }
 
         // Get all categories
@@ -26,7 +23,7 @@ namespace backend_trial.Controllers
         {
             try
             {
-                var categories = await categorieRepository.GetAllRepositoriesAsync();
+                var categories = await _dbContext.Categories.ToListAsync();
                 return Ok(categories);
             }
             catch (Exception ex)
@@ -41,7 +38,11 @@ namespace backend_trial.Controllers
         {
             try
             {
-                var category = await categorieRepository.GetCategoryByIdAsync(id);
+                var category = await _dbContext.Categories.FirstOrDefaultAsync(c => c.CategoryId == id);
+                if (category == null)
+                {
+                    return NotFound(new { Message = "Category not found" });
+                }
                 return Ok(category);
             }
             catch (Exception ex)
@@ -60,7 +61,26 @@ namespace backend_trial.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                var newCategory = await categorieRepository.AddCategoryAsync(categoryRequestDto);
+
+                // Check if category name already exists
+                var existingCategory = await _dbContext.Categories
+                    .FirstOrDefaultAsync(c => c.Name.ToLower() == categoryRequestDto.Name.ToLower());
+
+                if (existingCategory != null)
+                {
+                    return Conflict(new { Message = "Category with this name already exists" });
+                }
+
+                var newCategory = new Category
+                {
+                    CategoryId = Guid.NewGuid(),
+                    Name = categoryRequestDto.Name,
+                    Description = categoryRequestDto.Description,
+                    IsActive = categoryRequestDto.IsActive
+                };
+
+                _dbContext.Categories.Add(newCategory);
+                await _dbContext.SaveChangesAsync();
 
                 return CreatedAtAction(nameof(GetCategoryById), new { id = newCategory.CategoryId }, newCategory);
             }
@@ -72,7 +92,7 @@ namespace backend_trial.Controllers
 
         // Update category
         [HttpPut("categories/{id}")]
-        public async Task<ActionResult> UpdateCategoryAsync(Guid id, [FromBody] CategoryRequestDto categoryRequestDto)
+        public async Task<ActionResult> UpdateCategory(Guid id, [FromBody] CategoryRequestDto categoryRequestDto)
         {
             try
             {
@@ -81,14 +101,34 @@ namespace backend_trial.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var updatedCategory = await categorieRepository.UpdateCategoryAsync(id, categoryRequestDto);
-                return Ok(updatedCategory);
+                var category = await _dbContext.Categories.FirstOrDefaultAsync(c => c.CategoryId == id);
+                if (category == null)
+                {
+                    return NotFound(new { Message = "Category not found" });
+                }
+
+                // Check if another category has the same name
+                var existingCategory = await _dbContext.Categories
+                    .FirstOrDefaultAsync(c => c.Name.ToLower() == categoryRequestDto.Name.ToLower() && c.CategoryId != id);
+
+                if (existingCategory != null)
+                {
+                    return Conflict(new { Message = "Another category with this name already exists" });
+                }
+
+                category.Name = categoryRequestDto.Name;
+                category.Description = categoryRequestDto.Description;
+                category.IsActive = categoryRequestDto.IsActive;
+
+                _dbContext.Categories.Update(category);
+                await _dbContext.SaveChangesAsync();
+
+                return Ok(new { Message = "Category updated successfully", Category = category });
             }
             catch (Exception ex)
             {
                 return BadRequest(new { Message = "Error updating category", Error = ex.Message });
             }
-
         }
 
         // Toggle category active/inactive status
@@ -97,7 +137,15 @@ namespace backend_trial.Controllers
         {
             try
             {
-                var category = await categorieRepository.ToggleCategoryStatusAsync(id);
+                var category = await _dbContext.Categories.FirstOrDefaultAsync(c => c.CategoryId == id);
+                if (category == null)
+                {
+                    return NotFound(new { Message = "Category not found" });
+                }
+
+                category.IsActive = !category.IsActive;
+                _dbContext.Categories.Update(category);
+                await _dbContext.SaveChangesAsync();
 
                 return Ok(new { Message = $"Category is now {(category.IsActive ? "active" : "inactive")}", Category = category });
             }
@@ -113,8 +161,25 @@ namespace backend_trial.Controllers
         {
             try
             {
-                var category = await categorieRepository.DeleteCategoryAsync(id);
-                return Ok(new { Message = "Category deleted successfully", Category = category});
+                var category = await _dbContext.Categories.FirstOrDefaultAsync(c => c.CategoryId == id);
+                if (category == null)
+                {
+                    return NotFound(new { Message = "Category not found" });
+                }
+
+                // Check if category is being used by any ideas
+                var ideasUsingCategory = await _dbContext.Ideas
+                    .AnyAsync(i => i.CategoryId == id);
+
+                if (ideasUsingCategory)
+                {
+                    return BadRequest(new { Message = "Cannot delete category as it is being used by ideas" });
+                }
+
+                _dbContext.Categories.Remove(category);
+                await _dbContext.SaveChangesAsync();
+
+                return Ok(new { Message = "Category deleted successfully" });
             }
             catch (Exception ex)
             {
@@ -123,4 +188,3 @@ namespace backend_trial.Controllers
         }
     }
 }
-

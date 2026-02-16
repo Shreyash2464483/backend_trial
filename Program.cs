@@ -59,9 +59,6 @@ builder.Services.AddDbContext<IdeaBoardDbContext>(options => options.UseSqlServe
 
 // Add Repositories
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
-builder.Services.AddScoped<ICategorieRepository, CategorieRepository>();
-builder.Services.AddScoped<ICommentRepository, CommentRepository>();
-builder.Services.AddScoped<IIdeaRepository, IdeaRepository>();
 
 // Add Services
 builder.Services.AddScoped<ITokenService, TokenService>();
