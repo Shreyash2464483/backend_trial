@@ -341,7 +341,12 @@ namespace backend_trial.Controllers
                     return Unauthorized(new { Message = "User ID not found in token" });
                 }
 
-                var idea = await _dbContext.Ideas.FirstOrDefaultAsync(i => i.IdeaId == id);
+                var idea = await _dbContext.Ideas
+                    .Include(i => i.Comments)
+                    .Include(i => i.Votes)
+                    .Include(i => i.Reviews)
+                    .FirstOrDefaultAsync(i => i.IdeaId == id);
+                    
                 if (idea == null)
                 {
                     return NotFound(new { Message = "Idea not found" });
@@ -366,7 +371,8 @@ namespace backend_trial.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { Message = "Error deleting idea", Error = ex.Message });
+                var innerException = ex.InnerException?.Message ?? ex.Message;
+                return BadRequest(new { Message = "Error deleting idea", Error = innerException });
             }
         }
     }

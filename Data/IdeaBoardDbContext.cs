@@ -267,6 +267,18 @@ namespace backend_trial.Data
                     .HasForeignKey(x => x.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
 
+                // FK: Notification.IdeaId -> Idea.IdeaId
+                e.HasOne(x => x.Idea)
+                    .WithMany()
+                    .HasForeignKey(x => x.IdeaId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                // FK: Notification.ReviewerId -> User.UserId
+                e.HasOne(x => x.Reviewer)
+                    .WithMany()
+                    .HasForeignKey(x => x.ReviewerId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
                 e.HasIndex(x => new { x.UserId, x.Status });
                 e.HasIndex(x => x.CreatedDate);
             });
