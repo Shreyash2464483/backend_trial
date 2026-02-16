@@ -14,10 +14,12 @@ namespace backend_trial.Controllers
     public class IdeaController : ControllerBase
     {
         private readonly IIdeaRepository ideaRepository;
+        private readonly IdeaBoardDbContext dbContext;
 
-        public IdeaController(IIdeaRepository ideaRepository)
+        public IdeaController(IIdeaRepository ideaRepository, IdeaBoardDbContext dbContext)
         {
             this.ideaRepository = ideaRepository;
+            this.dbContext = dbContext;
         }
 
         [HttpGet("all")]
@@ -87,7 +89,7 @@ namespace backend_trial.Controllers
                 }
 
                 // Verify category exists and is active
-                var category = await _dbContext.Categories.FirstOrDefaultAsync(c => c.CategoryId == ideaRequestDto.CategoryId);
+                var category = await dbContext.Categories.FirstOrDefaultAsync(c => c.CategoryId == ideaRequestDto.CategoryId);
                 if (category == null)
                 {
                     return NotFound(new { Message = "Category not found" });
@@ -99,7 +101,7 @@ namespace backend_trial.Controllers
                 }
 
                 // Verify user exists
-                var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.UserId == userGuid);
+                var user = await dbContext.Users.FirstOrDefaultAsync(u => u.UserId == userGuid);
                 if (user == null)
                 {
                     return Unauthorized(new { Message = "User not found" });
@@ -116,8 +118,8 @@ namespace backend_trial.Controllers
                     Status = IdeaStatus.UnderReview
                 };
 
-                _dbContext.Ideas.Add(newIdea);
-                await _dbContext.SaveChangesAsync();
+                dbContext.Ideas.Add(newIdea);
+                await dbContext.SaveChangesAsync();
 
                 var responseIdea = new IdeaResponseDto
                 {

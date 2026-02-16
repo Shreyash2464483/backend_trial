@@ -12,11 +12,12 @@ namespace backend_trial.Controllers
     public class CategorieController : ControllerBase
     {
         private readonly ICategorieRepository categorieRepository;
+        private readonly IdeaBoardDbContext dbContext;
 
-        public CategorieController(ICategorieRepository categorieRepository)
+        public CategorieController(ICategorieRepository categorieRepository, IdeaBoardDbContext dbContext)
         {
-            _dbContext = dbContext;
             this.categorieRepository = categorieRepository;
+            this.dbContext = dbContext;
         }
 
         // Get all categories
