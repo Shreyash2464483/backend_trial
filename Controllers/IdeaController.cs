@@ -359,7 +359,7 @@ namespace backend_trial.Controllers
                 }
 
                 // Only allow deletion of draft ideas
-                if (idea.Status != IdeaStatus.Draft)
+                if (idea.Status != IdeaStatus.Rejected)
                 {
                     return BadRequest(new { Message = "You can only delete ideas in Draft status" });
                 }

@@ -89,7 +89,7 @@ namespace backend_trial.Controllers
                 // Validate status
                 if (!Enum.TryParse<IdeaStatus>(status, true, out var ideaStatus))
                 {
-                    return BadRequest(new { Message = "Invalid status. Valid values are: Draft, UnderReview, Approved" });
+                        return BadRequest(new { Message = "Invalid status. Valid values are: Rejected, UnderReview, Approved" });
                 }
 
                 var ideas = await _dbContext.Ideas
@@ -206,7 +206,7 @@ namespace backend_trial.Controllers
             }
         }
 
-        // Change idea status (Draft -> UnderReview -> Approved)
+        // Change idea status (Rejected -> UnderReview -> Approved)
         [HttpPut("ideas/{ideaId}/status")]
         public async Task<ActionResult> ChangeIdeaStatus(Guid ideaId, [FromBody] ChangeIdeaStatusRequestDto request)
         {
@@ -220,7 +220,7 @@ namespace backend_trial.Controllers
                 // Validate status
                 if (!Enum.TryParse<IdeaStatus>(request.Status, true, out var newStatus))
                 {
-                    return BadRequest(new { Message = "Invalid status. Valid values are: Draft, UnderReview, Approved" });
+                    return BadRequest(new { Message = "Invalid status. Valid values are: Rejected, UnderReview, Approved" });
                 }
 
                 var idea = await _dbContext.Ideas
