@@ -8,6 +8,7 @@ namespace backend_trial.Data
     {
         public IdeaBoardDbContext(DbContextOptions<IdeaBoardDbContext> options) : base(options)
         {
+
         }
 
 

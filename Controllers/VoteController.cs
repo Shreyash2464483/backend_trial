@@ -19,6 +19,44 @@ namespace backend_trial.Controllers
             _dbContext = dbContext;
         }
 
+        // Get current user's vote status for an idea
+        [HttpGet("{ideaId}/user-vote")]
+        [Authorize]
+        public async Task<ActionResult<UserVoteResponseDto>> GetUserVoteStatus(Guid ideaId)
+        {
+            try
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var userGuid))
+                {
+                    return Unauthorized(new { Message = "User ID not found in token" });
+                }
+
+                // Check if idea exists
+                var idea = await _dbContext.Ideas.FirstOrDefaultAsync(i => i.IdeaId == ideaId);
+                if (idea == null)
+                {
+                    return NotFound(new { Message = "Idea not found" });
+                }
+
+                // Get user's vote for this idea
+                var userVote = await _dbContext.Votes
+                    .FirstOrDefaultAsync(v => v.IdeaId == ideaId && v.UserId == userGuid);
+
+                var response = new UserVoteResponseDto
+                {
+                    HasVoted = userVote != null,
+                    VoteType = userVote?.VoteType.ToString()
+                };
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = "Error retrieving user vote status", Error = ex.Message });
+            }
+        }
+
         // Add upvote to an idea
         [HttpPost("{ideaId}/upvote")]
         public async Task<ActionResult> AddUpvote(Guid ideaId)
@@ -275,3 +313,4 @@ namespace backend_trial.Controllers
         }
     }
 }
+
