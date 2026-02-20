@@ -8,8 +8,6 @@
         public Guid ReviewerId { get; set; }
 
         public string Feedback { get; set; } = null!;
-        public ReviewDecision Decision { get; set; }
-        public string? RejectionReason { get; set; }
         public DateTime ReviewDate { get; set; }
 
         public Idea Idea { get; set; } = null!;

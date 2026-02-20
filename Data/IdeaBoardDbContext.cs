@@ -31,7 +31,6 @@ namespace backend_trial.Data
             var userStatusConv = new EnumToStringConverter<UserStatus>();
             var ideaStatusConv = new EnumToStringConverter<IdeaStatus>();
             var voteTypeConv = new EnumToStringConverter<VoteType>();
-            var reviewDecisionConv = new EnumToStringConverter<ReviewDecision>();
             var notificationTypeConv = new EnumToStringConverter<NotificationType>();
             var notificationStatusConv = new EnumToStringConverter<NotificationStatus>();
 
@@ -117,6 +116,16 @@ namespace backend_trial.Data
                     .HasConversion(ideaStatusConv)
                     .IsRequired()
                     .HasMaxLength(30);
+
+                e.Property(x => x.ReviewedByUserId)
+                    .IsRequired(false);
+
+                e.Property(x => x.ReviewedByUserName)
+                    .HasMaxLength(100)
+                    .IsRequired(false);
+
+                e.Property(x => x.ReviewComment)
+                    .IsRequired(false);
 
                 // FK: Idea.CategoryId -> Category.CategoryId
                 e.HasOne(x => x.Category)
@@ -210,11 +219,6 @@ namespace backend_trial.Data
                 e.Property(x => x.Feedback)
                     .IsRequired();
 
-                e.Property(x => x.Decision)
-                    .HasConversion(reviewDecisionConv)
-                    .IsRequired()
-                    .HasMaxLength(20);
-
                 e.Property(x => x.ReviewDate)
                     .IsRequired();
 
@@ -233,7 +237,6 @@ namespace backend_trial.Data
                 e.HasIndex(x => x.IdeaId);
                 e.HasIndex(x => x.ReviewerId);
                 e.HasIndex(x => x.ReviewDate);
-                e.HasIndex(x => x.Decision);
             });
 
             // Notification entity configuration
