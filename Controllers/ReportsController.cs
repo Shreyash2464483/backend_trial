@@ -23,10 +23,7 @@ namespace backend_trial.Controllers
             _dbContext = dbContext;
         }
 
-        /// <summary>
-        /// GET /api/reports/system-overview
-        /// Get comprehensive system statistics and overview data.
-        /// </summary>
+
         [HttpGet("system-overview")]
         public async Task<ActionResult> GetSystemOverview()
         {
@@ -116,10 +113,6 @@ namespace backend_trial.Controllers
             }
         }
 
-        /// <summary>
-        /// GET /api/reports/ideas/status-distribution
-        /// Get ideas grouped by approval status with percentages.
-        /// </summary>
         [HttpGet("ideas/status-distribution")]
         public async Task<ActionResult> GetIdeasStatusDistribution()
         {
@@ -161,10 +154,6 @@ namespace backend_trial.Controllers
             }
         }
 
-        /// <summary>
-        /// GET /api/reports/categories
-        /// Get reports for all categories with idea statistics.
-        /// </summary>
         [HttpGet("categories")]
         public async Task<ActionResult> GetCategoryReports()
         {
@@ -191,10 +180,6 @@ namespace backend_trial.Controllers
             }
         }
 
-        /// <summary>
-        /// GET /api/reports/category/{categoryId}
-        /// Get detailed report for a specific category.
-        /// </summary>
         [HttpGet("category/{categoryId}")]
         public async Task<ActionResult> GetCategoryReport(Guid categoryId)
         {
@@ -228,10 +213,6 @@ namespace backend_trial.Controllers
             }
         }
 
-        /// <summary>
-        /// GET /api/reports/ideas/by-date
-        /// Get ideas submitted by date range for trend analysis.
-        /// </summary>
         [HttpGet("ideas/by-date")]
         public async Task<ActionResult> GetIdeasByDateRange([FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
         {
@@ -262,10 +243,6 @@ namespace backend_trial.Controllers
             }
         }
 
-        /// <summary>
-        /// GET /api/reports/users/activity
-        /// Get user activity statistics and engagement metrics.
-        /// </summary>
         [HttpGet("users/activity")]
         public async Task<ActionResult> GetUserActivityReport()
         {
@@ -319,10 +296,6 @@ namespace backend_trial.Controllers
             }
         }
 
-        /// <summary>
-        /// GET /api/reports/top-categories
-        /// Get top performing categories by idea count or approval rate.
-        /// </summary>
         [HttpGet("top-categories")]
         public async Task<ActionResult> GetTopCategories([FromQuery] int limit = 10)
         {
@@ -474,6 +447,34 @@ namespace backend_trial.Controllers
                 activeCategories,
                 approvalRate
             };
+        }
+
+        [HttpGet("ideas/latest")]
+        public async Task<ActionResult> GetLatestIdeas()
+        {
+            try
+            {
+                var latestIdeas = await _dbContext.Ideas
+                    .OrderByDescending(i => i.SubmittedDate)
+                    .Take(5)
+                    .Select(i => new
+                    {
+                        ideaId = i.IdeaId,
+                        title = i.Title,
+                        description = i.Description,
+                        submittedBy = i.SubmittedByUser.Name,
+                        categoryName = i.Category.Name,
+                        status = i.Status.ToString(),
+                        submittedDate = i.SubmittedDate
+                    })
+                    .ToListAsync();
+
+                return Ok(latestIdeas);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Error retrieving latest ideas", error = ex.Message });
+            }
         }
     }
 }
