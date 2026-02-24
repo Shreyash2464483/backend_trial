@@ -1,4 +1,4 @@
-﻿using backend_trial.Models.DTO;
+﻿using backend_trial.Models.DTO.Auth;
 using backend_trial.Repositories;
 using Microsoft.AspNetCore.Mvc;
 

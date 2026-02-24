@@ -1,5 +1,5 @@
 ﻿using System.Security.Claims;
-using backend_trial.Models.DTO;
+using backend_trial.Models.DTO.Vote;
 using backend_trial.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

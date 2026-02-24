@@ -1,6 +1,6 @@
 ﻿// backend_trial/Services/CategoryService.cs
 using backend_trial.Models.Domain;
-using backend_trial.Models.DTO;
+using backend_trial.Models.DTO.Category;
 using backend_trial.Repositories.Interfaces;
 using backend_trial.Services.Interfaces;
 

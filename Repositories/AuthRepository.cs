@@ -1,6 +1,6 @@
 ﻿using backend_trial.Data;
 using backend_trial.Models.Domain;
-using backend_trial.Models.DTO;
+using backend_trial.Models.DTO.Auth;
 using backend_trial.Services;
 using Microsoft.EntityFrameworkCore;
 

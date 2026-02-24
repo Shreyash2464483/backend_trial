@@ -1,5 +1,6 @@
 using backend_trial.Models.Domain;
-using backend_trial.Models.DTO;
+using backend_trial.Models.DTO.Comment;
+using backend_trial.Models.DTO.Idea;
 using backend_trial.Repositories.Interfaces;
 using backend_trial.Services.Interfaces;
 

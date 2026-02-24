@@ -1,5 +1,5 @@
-using backend_trial.Models.DTO;
 using backend_trial.Models.Domain;
+using backend_trial.Models.DTO.User;
 
 namespace backend_trial.Services.Interfaces
 {

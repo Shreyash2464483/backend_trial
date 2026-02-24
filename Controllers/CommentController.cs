@@ -1,4 +1,4 @@
-﻿using backend_trial.Models.DTO;
+﻿using backend_trial.Models.DTO.Comment;
 using backend_trial.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

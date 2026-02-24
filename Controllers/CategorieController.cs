@@ -1,5 +1,5 @@
 ﻿// backend_trial/Controllers/CategorieController.cs
-using backend_trial.Models.DTO;
+using backend_trial.Models.DTO.Category;
 using backend_trial.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 

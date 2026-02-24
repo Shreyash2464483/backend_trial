@@ -1,4 +1,5 @@
-﻿using backend_trial.Models.DTO;
+﻿using backend_trial.Models.DTO.Idea;
+using backend_trial.Models.DTO.Review;
 
 namespace backend_trial.Services.Interfaces
 {

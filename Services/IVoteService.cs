@@ -1,4 +1,4 @@
-﻿using backend_trial.Models.DTO;
+﻿using backend_trial.Models.DTO.Vote;
 
 namespace backend_trial.Services.Interfaces
 {
