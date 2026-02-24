@@ -64,6 +64,9 @@ builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IReportsRepository, ReportsRepository>();
 
+builder.Services.AddScoped<backend_trial.Repositories.Interfaces.ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<backend_trial.Repositories.Interfaces.ICommentRepository, CommentRepository>();
+builder.Services.AddScoped<backend_trial.Repositories.Interfaces.IIdeaRepository, IdeaRepository>();
 
 // Add Services
 builder.Services.AddScoped<ITokenService, TokenService>();
@@ -72,6 +75,8 @@ builder.Services.AddScoped<ICategoryService, CategorieService>();
 builder.Services.AddScoped<IReportsService, ReportsService>();
 
 
+builder.Services.AddScoped<backend_trial.Services.Interfaces.ICommentService, CommentService>();
+builder.Services.AddScoped<backend_trial.Services.Interfaces.IIdeaService, IdeaService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
