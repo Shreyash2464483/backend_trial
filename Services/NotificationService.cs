@@ -16,35 +16,24 @@ namespace backend_trial.Services
 
         public async Task CreateNewIdeaNotificationAsync(Guid ideaId, string ideaTitle, Guid submittedByUserId)
         {
-            try
+            var activeUsers = await _dbContext.Users
+                .Where(u => u.Status == UserStatus.Active && u.UserId != submittedByUserId)
+                .Select(u => u.UserId)
+                .ToListAsync();
+
+            var notifications = activeUsers.Select(uid => new Notification
             {
-                // Notify all active users (managers AND employees) EXCEPT the idea submitter
-                var activeUsers = await _dbContext.Users
-                    .Where(u => u.Status == UserStatus.Active && u.UserId != submittedByUserId)
-                    .ToListAsync();
+                NotificationId = Guid.NewGuid(),
+                UserId = uid,
+                Type = NotificationType.NewIdea,
+                Message = $"New idea submitted: {ideaTitle}",
+                Status = NotificationStatus.Unread,
+                CreatedDate = DateTime.UtcNow,
+                IdeaId = ideaId
+            });
 
-                foreach (var user in activeUsers)
-                {
-                    var notification = new Notification
-                    {
-                        NotificationId = Guid.NewGuid(),
-                        UserId = user.UserId,
-                        Type = NotificationType.NewIdea,
-                        Message = $"New idea submitted: {ideaTitle}",
-                        Status = NotificationStatus.Unread,
-                        CreatedDate = DateTime.UtcNow,
-                        IdeaId = ideaId
-                    };
-
-                    _dbContext.Notifications.Add(notification);
-                }
-
-                await _dbContext.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Error creating new idea notification: {ex.Message}");
-            }
+            _dbContext.Notifications.AddRange(notifications);
+            await _dbContext.SaveChangesAsync();
         }
 
         public async Task CreateManagerDecisionNotificationAsync(Guid ideaId, string ideaTitle, Guid submittedByUserId, Guid reviewerId, string reviewerName, string decision)

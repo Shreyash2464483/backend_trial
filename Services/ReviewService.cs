@@ -144,11 +144,12 @@ namespace backend_trial.Services
             await reviewRepository.UpdateIdeaAsync(idea, ct);
             await reviewRepository.SaveChangesAsync(ct);
 
-            if (newStatus == IdeaStatus.Rejected)
+            if (newStatus == IdeaStatus.Rejected || newStatus == IdeaStatus.Approved)
             {
                 var manager = await reviewRepository.GetUserAsync(managerId, ct);
+                var decision = newStatus == IdeaStatus.Approved ? "Approved" : "Rejected";
                 await notificationService.CreateManagerDecisionNotificationAsync(
-                    idea.IdeaId, idea.Title, idea.SubmittedByUserId, managerId, manager?.Name ?? "Manager", "Rejected");
+                    idea.IdeaId, idea.Title, idea.SubmittedByUserId, managerId, manager?.Name ?? "Manager", decision);
             }
         }
 
